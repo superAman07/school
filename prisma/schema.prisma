@@ -1,0 +1,771 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  TEACHER
+  PARENT
+}
+
+enum SchoolStatus {
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  NOT_SPECIFIED
+}
+
+enum FormContext {
+  ADMISSION
+  LEAVE
+  CUSTOM
+}
+
+enum InputType {
+  TEXT
+  TEXTAREA
+  NUMBER
+  EMAIL
+  PHONE
+  DATE
+  DATETIME
+  TIME
+  SELECT
+  MULTI_SELECT
+  RADIO
+  CHECKBOX
+  FILE
+  TOGGLE
+  URL
+}
+
+enum AdmissionApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  WAITLISTED
+  CANCELLED
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  TRANSFERRED
+  GRADUATED
+  DROPPED_OUT
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  LEFT
+  TRANSFERRED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+  HALF_DAY
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  APPROVE
+  REJECT
+}
+
+enum GuardianRelation {
+  FATHER
+  MOTHER
+  GUARDIAN
+  OTHER
+}
+
+model School {
+  id         String       @id @default(cuid())
+  code       String       @unique
+  name       String
+  status     SchoolStatus @default(ACTIVE)
+  email      String?
+  phone      String?
+  address1   String?
+  address2   String?
+  city       String?
+  state      String?
+  country    String?
+  postalCode String?
+  deletedAt  DateTime?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  settings              SchoolSetting?
+  users                 User[]
+  staffProfiles         StaffProfile[]
+  academicYears         AcademicYear[]
+  gradeLevels           GradeLevel[]
+  sections              Section[]
+  classSections         ClassSection[]
+  subjects              Subject[]
+  students              Student[]
+  studentGuardians      StudentGuardian[]
+  studentEnrollments    StudentEnrollment[]
+  admissionApplications AdmissionApplication[]
+  formTemplates         FormTemplate[]
+  formFields            FormField[]
+  formSubmissions       FormSubmission[]
+  attendanceSessions    AttendanceSession[]
+  attendanceRecords     AttendanceRecord[]
+  leaveRequests         LeaveRequest[]
+  auditLogs             AuditLog[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SchoolSetting {
+  id       String @id @default(cuid())
+  schoolId String @unique
+  school   School @relation(fields: [schoolId], references: [id])
+
+  timezone     String @default("Asia/Kolkata")
+  locale       String @default("en-IN")
+  currencyCode String @default("INR")
+
+  primaryColor   String? // UI theme support if you want school-level branding later
+  secondaryColor String?
+  accentColor    String?
+  logoUrl        String?
+  faviconUrl     String?
+
+  admissionOpen     Boolean @default(false)
+  attendanceEnabled Boolean @default(true)
+  leavesEnabled     Boolean @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model User {
+  id       String  @id @default(cuid())
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
+
+  role               Role
+  email              String    @unique
+  passwordHash       String
+  isActive           Boolean   @default(true)
+  emailVerifiedAt    DateTime?
+  lastLoginAt        DateTime?
+  mustChangePassword Boolean   @default(false)
+  deletedAt          DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile      Profile?
+  staffProfile StaffProfile?
+
+  classTeacherAssignments ClassSection[]         @relation("ClassTeacherAssignments")
+  submittedForms          FormSubmission[]       @relation("SubmittedByUser")
+  requestedLeaves         LeaveRequest[]         @relation("RequestedByUser")
+  reviewedLeaves          LeaveRequest[]         @relation("ReviewedByUser")
+  takenAttendanceSessions AttendanceSession[]    @relation("TeacherAttendanceSessions")
+  auditLogs               AuditLog[]             @relation("ActorAuditLogs")
+  studentGuardians        StudentGuardian[]      @relation("ParentGuardians")
+  admissionApplications   AdmissionApplication[] @relation("ApplicationSubmittedBy")
+  reviewedApplications    AdmissionApplication[] @relation("ApplicationReviewedBy")
+  reviewedFormSubmissions FormSubmission[]       @relation("FormReviewedByUser")
+  markedAttendanceRecords AttendanceRecord[]     @relation("MarkedByUser")
+
+  @@index([schoolId, role])
+  @@index([schoolId, isActive])
+}
+
+model Profile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  firstName   String
+  middleName  String?
+  lastName    String?
+  phone       String?
+  gender      Gender    @default(NOT_SPECIFIED)
+  dateOfBirth DateTime?
+  photoUrl    String?
+
+  address1   String?
+  address2   String?
+  city       String?
+  state      String?
+  country    String?
+  postalCode String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model StaffProfile {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+  userId   String @unique
+  user     User   @relation(fields: [userId], references: [id])
+
+  employeeCode    String
+  designation     String
+  department      String?
+  joiningDate     DateTime?
+  qualification   String?
+  experienceYears Int?
+  notes           String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([schoolId, employeeCode])
+  @@index([schoolId, designation])
+}
+
+model AcademicYear {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  name      String // e.g. 2025-2026
+  startDate DateTime
+  endDate   DateTime
+  isCurrent Boolean  @default(false)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  classSections      ClassSection[]
+  enrollments        StudentEnrollment[]
+  attendanceSessions AttendanceSession[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId, isCurrent])
+}
+
+model GradeLevel {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  name      String // Nursery, LKG, UKG, 1, 2, 3...
+  sortOrder Int
+  isActive  Boolean @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  classSections ClassSection[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId, sortOrder])
+}
+
+model Section {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  name      String // A, B, C, etc.
+  sortOrder Int
+  isActive  Boolean @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  classSections ClassSection[]
+
+  @@unique([schoolId, name])
+  @@index([schoolId, sortOrder])
+}
+
+model ClassSection {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  gradeLevelId String
+  gradeLevel   GradeLevel @relation(fields: [gradeLevelId], references: [id])
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  classTeacherId String?
+  classTeacher   User?   @relation("ClassTeacherAssignments", fields: [classTeacherId], references: [id])
+
+  capacity Int?
+  roomName String?
+  isActive Boolean @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  enrollments        StudentEnrollment[]
+  attendanceSessions AttendanceSession[]
+
+  @@unique([schoolId, academicYearId, gradeLevelId, sectionId])
+  @@index([schoolId, academicYearId])
+  @@index([schoolId, classTeacherId])
+}
+
+model Subject {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  code       String?
+  name       String
+  sortOrder  Int?
+  isOptional Boolean @default(false)
+  isActive   Boolean @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([schoolId, name])
+  @@index([schoolId, isActive])
+}
+
+model Student {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  sourceApplicationId String?               @unique
+  sourceApplication   AdmissionApplication? @relation("ApplicationToStudent", fields: [sourceApplicationId], references: [id])
+
+  admissionNo    String?
+  registrationNo String?
+  firstName      String
+  middleName     String?
+  lastName       String?
+  gender         Gender    @default(NOT_SPECIFIED)
+  dateOfBirth    DateTime?
+
+  religion    String?
+  caste       String?
+  category    String?
+  nationality String?
+  bloodGroup  String?
+
+  fatherName       String?
+  fatherOccupation String?
+  motherName       String?
+  motherOccupation String?
+  guardianName     String?
+  guardianRelation GuardianRelation?
+  guardianPhone    String?
+
+  currentAddress1   String?
+  currentAddress2   String?
+  currentCity       String?
+  currentState      String?
+  currentCountry    String?
+  currentPostalCode String?
+
+  permanentAddress1   String?
+  permanentAddress2   String?
+  permanentCity       String?
+  permanentState      String?
+  permanentCountry    String?
+  permanentPostalCode String?
+
+  residenceInUPYears  Int?
+  residenceInUPMonths Int?
+
+  photoUrl String?
+  remarks  String?
+  status   StudentStatus @default(ACTIVE)
+
+  formData Json?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  guardians         StudentGuardian[]
+  enrollments       StudentEnrollment[]
+  attendanceRecords AttendanceRecord[]
+  leaveRequests     LeaveRequest[]
+  formSubmissions   FormSubmission[]
+
+  @@unique([schoolId, admissionNo])
+  @@index([schoolId, status])
+  @@index([schoolId, firstName, lastName])
+}
+
+model StudentGuardian {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+
+  parentId String
+  parent   User   @relation("ParentGuardians", fields: [parentId], references: [id])
+
+  relation           GuardianRelation
+  isPrimary          Boolean          @default(false)
+  isEmergencyContact Boolean          @default(false)
+  canPickChild       Boolean          @default(true)
+  canApplyLeave      Boolean          @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([schoolId, studentId, parentId])
+  @@index([schoolId, parentId])
+  @@index([schoolId, studentId])
+}
+
+model StudentEnrollment {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  classSectionId String
+  classSection   ClassSection @relation(fields: [classSectionId], references: [id])
+
+  admissionDate DateTime         @default(now())
+  rollNumber    Int?
+  enrollmentNo  String?
+  status        EnrollmentStatus @default(ACTIVE)
+  isPrimary     Boolean          @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  attendanceRecords AttendanceRecord[]
+
+  @@unique([schoolId, academicYearId, studentId])
+  @@unique([schoolId, classSectionId, rollNumber])
+  @@index([schoolId, classSectionId])
+  @@index([schoolId, academicYearId, status])
+}
+
+model AdmissionApplication {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  applicationNo String
+  status        AdmissionApplicationStatus @default(DRAFT)
+
+  submittedByUserId String?
+  submittedByUser   User?   @relation("ApplicationSubmittedBy", fields: [submittedByUserId], references: [id])
+
+  formTemplateId String?
+  formTemplate   FormTemplate? @relation(fields: [formTemplateId], references: [id])
+
+  formSubmissionId String?         @unique
+  formSubmission   FormSubmission? @relation(fields: [formSubmissionId], references: [id])
+
+  applicationDate DateTime @default(now())
+
+  parentOrGuardianName  String?
+  parentAddress         String?
+  relationshipToScholar String?
+
+  scholarName   String
+  scholarGender Gender    @default(NOT_SPECIFIED)
+  dateOfBirth   DateTime?
+
+  fatherName                      String?
+  fatherOccupation                String?
+  fatherResidenceWithPostDistrict String?
+
+  motherName       String?
+  motherOccupation String?
+
+  guardianName    String?
+  guardianAddress String?
+
+  residenceInUPYears  Int?
+  residenceInUPMonths Int?
+
+  religion    String?
+  caste       String?
+  nationality String?
+
+  lastInstitutionName               String?
+  lastInstitutionRegisterCopyCount  Int?
+  previouslyAttendedThisInstitution Boolean?
+
+  classSeekingAdmission String?
+  publicExamName        String?
+  publicExamYear        String?
+  publicExamDivision    String?
+  publicExamSubject     String?
+  subjectOffered        String?
+
+  contactPhone String?
+  contactEmail String?
+
+  decisionNote     String?
+  reviewedByUserId String?
+  reviewedByUser   User?     @relation("ApplicationReviewedBy", fields: [reviewedByUserId], references: [id])
+  reviewedAt       DateTime?
+  linkedStudent    Student?  @relation("ApplicationToStudent")
+
+  extraData Json?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([schoolId, applicationNo])
+  @@index([schoolId, status])
+  @@index([schoolId, createdAt])
+}
+
+model FormTemplate {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  code        String
+  name        String
+  context     FormContext @default(CUSTOM)
+  version     Int         @default(1)
+  isActive    Boolean     @default(true)
+  description String?
+  schemaMeta  Json?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  fields                FormField[]
+  submissions           FormSubmission[]
+  admissionApplications AdmissionApplication[]
+
+  @@unique([schoolId, code, version])
+  @@index([schoolId, context, isActive])
+}
+
+model FormField {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  templateId String
+  template   FormTemplate @relation(fields: [templateId], references: [id])
+
+  key         String
+  label       String
+  inputType   InputType
+  helpText    String?
+  placeholder String?
+  required    Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  isReadOnly  Boolean   @default(false)
+  isSystem    Boolean   @default(false)
+  sortOrder   Int       @default(0)
+
+  defaultValue     Json?
+  options          Json?
+  validation       Json?
+  conditionalLogic Json?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([templateId, key])
+  @@index([schoolId, templateId])
+  @@index([templateId, sortOrder])
+}
+
+model FormSubmission {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  templateId String
+  template   FormTemplate @relation(fields: [templateId], references: [id])
+
+  submittedByUserId String?
+  submittedByUser   User?   @relation("SubmittedByUser", fields: [submittedByUserId], references: [id])
+
+  relatedStudentId String?
+  relatedStudent   Student? @relation(fields: [relatedStudentId], references: [id])
+
+  status           String  @default("SUBMITTED")
+  data             Json
+  meta             Json?
+  reviewedByUserId String?
+  reviewedByUser   User?   @relation("FormReviewedByUser", fields: [reviewedByUserId], references: [id])
+
+  admissionApplication AdmissionApplication?
+  reviewedAt           DateTime?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([schoolId, templateId, createdAt])
+  @@index([schoolId, submittedByUserId])
+  @@index([schoolId, relatedStudentId])
+}
+
+model AttendanceSession {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  classSectionId String
+  classSection   ClassSection @relation(fields: [classSectionId], references: [id])
+
+  sessionDate DateTime
+  periodName  String?
+  notes       String?
+
+  takenByUserId String?
+  takenByUser   User?   @relation("TeacherAttendanceSessions", fields: [takenByUserId], references: [id])
+
+  isFinalized Boolean   @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  attendanceRecords AttendanceRecord[]
+
+  @@unique([classSectionId, sessionDate, periodName])
+  @@index([schoolId, sessionDate])
+  @@index([schoolId, classSectionId])
+}
+
+model AttendanceRecord {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  sessionId String
+  session   AttendanceSession @relation(fields: [sessionId], references: [id])
+
+  enrollmentId String
+  enrollment   StudentEnrollment @relation(fields: [enrollmentId], references: [id])
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+
+  status         AttendanceStatus
+  remark         String?
+  markedByUserId String?
+  markedByUser   User?            @relation("MarkedByUser", fields: [markedByUserId], references: [id])
+  markedAt       DateTime         @default(now())
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([sessionId, enrollmentId])
+  @@index([schoolId, studentId])
+  @@index([schoolId, status])
+}
+
+model LeaveRequest {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  studentId String?
+  student   Student? @relation(fields: [studentId], references: [id])
+
+  requestedByUserId String
+  requestedByUser   User   @relation("RequestedByUser", fields: [requestedByUserId], references: [id])
+
+  reviewedByUserId String?
+  reviewedByUser   User?   @relation("ReviewedByUser", fields: [reviewedByUserId], references: [id])
+
+  leaveType     String? // PERSONAL, MEDICAL, EMERGENCY, etc.
+  fromDate      DateTime
+  toDate        DateTime
+  reason        String
+  attachmentUrl String?
+
+  status       LeaveStatus @default(PENDING)
+  decisionNote String?
+  reviewedAt   DateTime?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([schoolId, studentId, status])
+  @@index([schoolId, requestedByUserId, status])
+  @@index([schoolId, createdAt])
+}
+
+model AuditLog {
+  id       String  @id @default(cuid())
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
+
+  actorUserId String?
+  actorUser   User?   @relation("ActorAuditLogs", fields: [actorUserId], references: [id])
+
+  entityName String
+  entityId   String
+  action     AuditAction
+  beforeData Json?
+  afterData  Json?
+  meta       Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([schoolId, entityName, entityId])
+  @@index([schoolId, createdAt])
+}

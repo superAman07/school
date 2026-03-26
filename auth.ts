@@ -3,9 +3,13 @@ import { authConfig } from './auth.config';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
-
-// Notice we only spin up Prisma in this Node-safe file
-const prisma = new PrismaClient();
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+// 1. Safely initialize Prisma with the PG Adapter for Supabase
+const connectionString = `${process.env.DATABASE_URL}`;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool as any);
+const prisma = new PrismaClient({ adapter });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,

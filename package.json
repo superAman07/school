@@ -45,5 +45,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
 }

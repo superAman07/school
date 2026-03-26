@@ -9,7 +9,7 @@ export default auth((req) => {
   const { nextUrl } = req;
 
   // We explicitly make the login page and homepage accessible to everyone
-  const isPublicRoute = nextUrl.pathname.startsWith('/login') || nextUrl.pathname === '/';
+const isPublicRoute = nextUrl.pathname.startsWith('/login') || nextUrl.pathname === '/' || nextUrl.pathname.startsWith('/apply');
 
   // If a user is not logged in, and tries to visit a private route like /dashboard, kick them to /login
   if (!isLoggedIn && !isPublicRoute) {

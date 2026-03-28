@@ -31,14 +31,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 </Link>
               </li>
             )}
-
-            {/* ONLY School Admins can see these links */}
-            {role === 'ADMIN' && (
-              <>
-                <li><Link href="/dashboard/teachers" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">👨‍🏫 Teachers Directory</Link></li>
-                <li><Link href="/dashboard/admissions" className="block px-4 py-2 text-blue-400 hover:bg-gray-800 rounded-md transition">📝 Applications</Link></li>
-              </>
-            )}
             
             {/* The Parent Links */}
             {role === 'PARENT' && (
@@ -49,7 +41,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <>
                 <li><Link href="/dashboard/teachers" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">👨‍🏫 Teachers Directory</Link></li>
                 <li><Link href="/dashboard/admissions" className="block px-4 py-2 text-blue-400 hover:bg-gray-800 rounded-md transition">📝 Applications</Link></li>
-                {/* Add this new Settings link! */}
+                
+                {/* Add the new Form Builder Link right here! */}
+                <li><Link href="/dashboard/admissions/form-builder" className="block px-4 py-2 text-purple-400 hover:bg-gray-800 rounded-md transition font-bold">🛠️ Form Builder</Link></li>
+                
                 <li><Link href="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition mt-4 border-t border-gray-800 pt-4">⚙️ School Settings</Link></li>
               </>
             )}

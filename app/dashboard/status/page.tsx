@@ -25,10 +25,10 @@ export default async function ParentPortalPage() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+        <div className= "max-w-6xl mx-auto space-y-8" >
       <div>
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Parent Portal</h1>
-        <p className="text-gray-500 text-lg mt-1">Track your pending applications and manage your enrolled children.</p>
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight" > Parent Portal </h1>
+            < p className = "text-gray-500 text-lg mt-1" > Track your pending applications and manage your enrolled children.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

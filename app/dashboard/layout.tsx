@@ -39,12 +39,23 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
             {role === 'ADMIN' && (
               <>
-                <li><Link href="/dashboard/teachers" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">👨‍🏫 Teachers Directory</Link></li>
-                <li><Link href="/dashboard/admissions" className="block px-4 py-2 text-blue-400 hover:bg-gray-800 rounded-md transition">📝 Applications</Link></li>
+                {/* ACADEMICS */}
+                <li className="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 pt-4 pb-1">Academics</li>
+                <li><Link href="/dashboard/academics/years" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">📅 Academic Years</Link></li>
+                <li><Link href="/dashboard/academics/grades" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">📚 Grades & Sections</Link></li>
+                <li><Link href="/dashboard/academics/subjects" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">📖 Subjects</Link></li>
                 
-                {/* Add the new Form Builder Link right here! */}
+                {/* PEOPLE */}
+                <li className="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 pt-4 pb-1">People</li>
+                <li><Link href="/dashboard/teachers" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">👨‍🏫 Staff Directory</Link></li>
+                <li><Link href="/dashboard/students" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">🎓 Students</Link></li>
+
+                {/* ADMISSIONS */}
+                <li className="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 pt-4 pb-1">Admissions</li>
+                <li><Link href="/dashboard/admissions" className="block px-4 py-2 text-blue-400 hover:bg-gray-800 rounded-md transition">📝 Applications</Link></li>
                 <li><Link href="/dashboard/admissions/form-builder" className="block px-4 py-2 text-purple-400 hover:bg-gray-800 rounded-md transition font-bold">🛠️ Form Builder</Link></li>
                 
+                {/* SETTINGS */}
                 <li><Link href="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition mt-4 border-t border-gray-800 pt-4">⚙️ School Settings</Link></li>
               </>
             )}

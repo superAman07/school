@@ -56,3 +56,59 @@ export async function createStaffMember(prevState: any, formData: FormData) {
     return { error: 'Failed to create staff member.' };
   }
 }
+
+export async function resetStaffPassword(prevState: any, formData: FormData) {
+  const session = await auth();
+  const user = session?.user as any;
+  if (!user || user.role !== 'ADMIN') return { error: 'Unauthorized' };
+
+  const staffUserId = formData.get('staffUserId') as string;
+  const newPassword = formData.get('newPassword') as string;
+
+  if (!newPassword || newPassword.length < 6) return { error: 'Password must be at least 6 characters.' };
+
+  try {
+    await prisma.user.update({
+      where: { id: staffUserId, schoolId: user.schoolId! },
+      data: { passwordHash: await hash(newPassword, 10) }
+    });
+
+    revalidatePath('/dashboard/staff');
+    return { success: `Password updated successfully! New password: ${newPassword}` };
+  } catch (err) {
+    console.error(err);
+    return { error: 'Failed to reset password.' };
+  }
+}
+
+export async function updateStaffDetails(prevState: any, formData: FormData) {
+  const session = await auth();
+  const user = session?.user as any;
+  if (!user || user.role !== 'ADMIN') return { error: 'Unauthorized' };
+
+  const staffUserId = formData.get('staffUserId') as string;
+  const staffProfileId = formData.get('staffProfileId') as string;
+  const firstName = formData.get('firstName') as string;
+  const lastName = formData.get('lastName') as string;
+  const phone = formData.get('phone') as string;
+  const designation = formData.get('designation') as string;
+
+  try {
+    await prisma.$transaction([
+      prisma.profile.update({
+        where: { userId: staffUserId },
+        data: { firstName, lastName: lastName || null, phone: phone || null }
+      }),
+      prisma.staffProfile.update({
+        where: { id: staffProfileId },
+        data: { designation }
+      })
+    ]);
+
+    revalidatePath('/dashboard/staff');
+    return { success: 'Details updated successfully!' };
+  } catch (err) {
+    console.error(err);
+    return { error: 'Failed to update details.' };
+  }
+}

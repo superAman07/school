@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AddStaffForm from './AddStaffForm';
+import Link from 'next/link';
 
 export default async function StaffDirectoryPage() {
   const session = await auth();
@@ -42,7 +43,7 @@ export default async function StaffDirectoryPage() {
               ) : (
                 <ul className="divide-y">
                   {staff.map(s => (
-                    <li key={s.id} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
+                    <Link href={`/dashboard/staff/${s.id}`} className="flex items-center justify-between px-6 py-4 hover:bg-blue-50 transition cursor-pointer">
                       <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg">
                           {s.user.profile?.firstName?.[0] || '?'}
@@ -58,7 +59,7 @@ export default async function StaffDirectoryPage() {
                         <Badge variant="secondary" className="font-mono text-xs">{s.employeeCode}</Badge>
                         <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100 text-xs">{s.designation}</Badge>
                       </div>
-                    </li>
+                    </Link>
                   ))}
                 </ul>
               )}

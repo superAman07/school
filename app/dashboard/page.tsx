@@ -106,7 +106,7 @@ export default async function DashboardHome() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900 p-8 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-gray-900 via-blue-950 to-gray-900 p-8 text-white shadow-xl">
         <div
           className="absolute inset-0 opacity-10"
           style={{

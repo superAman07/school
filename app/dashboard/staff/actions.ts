@@ -22,7 +22,7 @@ export async function createStaffMember(prevState: any, formData: FormData) {
     return { error: 'First name, email, designation and employee code are required.' };
   }
 
-  const tempPassword = 'Teacher@123!';
+  const tempPassword = process.env.DEFAULT_STAFF_PASSWORD || 'Teacher@123!';
 
   try {
     await prisma.$transaction(async (tx) => {

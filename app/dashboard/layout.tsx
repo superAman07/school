@@ -43,11 +43,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 <li className="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 pt-4 pb-1">Academics</li>
                 <li><Link href="/dashboard/academics/years" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">📅 Academic Years</Link></li>
                 <li><Link href="/dashboard/academics/grades" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">📚 Grades & Sections</Link></li>
+                <li><Link href="/dashboard/academics/classes" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">🏫 Class Matrix</Link></li>
                 <li><Link href="/dashboard/academics/subjects" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">📖 Subjects</Link></li>
                 
                 {/* PEOPLE */}
                 <li className="text-xs font-bold text-gray-500 uppercase tracking-widest px-4 pt-4 pb-1">People</li>
-                <li><Link href="/dashboard/teachers" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">👨‍🏫 Staff Directory</Link></li>
+                <li><Link href="/dashboard/staff" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">👨‍🏫 Staff Directory</Link></li>
                 <li><Link href="/dashboard/students" className="block px-4 py-2 hover:bg-gray-800 rounded-md transition">🎓 Students</Link></li>
 
                 {/* ADMISSIONS */}

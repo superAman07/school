@@ -22,7 +22,7 @@ export async function approveApplication(applicationId: string) {
       // 1. Mark the application officially approved
       await tx.admissionApplication.update({
         where: { id: application.id },
-        data: { 
+        data: {
           status: 'APPROVED',
           reviewedByUserId: user.id,
           reviewedAt: new Date()
@@ -30,12 +30,25 @@ export async function approveApplication(applicationId: string) {
       });
 
       // 2. Generate the official permanent Student database record
+      const nameParts = (application.scholarName || 'New Student').trim().split(' ');
       const student = await tx.student.create({
         data: {
           schoolId: application.schoolId,
-          firstName: application.scholarName || 'New Student', 
+          firstName: nameParts[0],
+          lastName: nameParts.slice(1).join(' ') || null,
+          gender: application.scholarGender,
+          dateOfBirth: application.dateOfBirth,
+          admissionNo: `ADM-${Date.now()}`,
+          status: 'ACTIVE',
+          religion: application.religion || null,
+          caste: application.caste || null,
+          nationality: application.nationality || null,
+          fatherName: application.fatherName || null,
+          fatherOccupation: application.fatherOccupation || null,
+          motherName: application.motherName || null,
+          motherOccupation: application.motherOccupation || null,
+          guardianName: application.guardianName || null,
           sourceApplicationId: application.id,
-          // We permanently inject all the dynamic fields into the core student profile!
           formData: application.extraData as object || {}
         }
       });
@@ -70,7 +83,7 @@ export async function rejectApplication(applicationId: string) {
   // Safely reject the application without creating any child accounts
   await prisma.admissionApplication.update({
     where: { id: applicationId, schoolId: user.schoolId! },
-    data: { 
+    data: {
       status: 'REJECTED',
       reviewedByUserId: user.id,
       reviewedAt: new Date()

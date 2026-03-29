@@ -43,7 +43,7 @@ export default async function SchoolAdmissionPage({ params }: { params: Promise<
         </div>
 
         <Card className="w-full shadow-2xl border-0 rounded-2xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8">
+          <CardHeader className="bg-linear-to-r from-blue-600 to-indigo-600 text-white p-8">
             <CardTitle className="text-3xl font-bold">New Student Application</CardTitle>
             <CardDescription className="text-blue-100 mt-2 text-base block font-medium">
               Please complete all required fields below. Your secure parent dashboard credentials will be generated automatically upon successful submission.

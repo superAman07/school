@@ -48,3 +48,22 @@ export async function deleteClassSection(classId: string) {
   });
   revalidatePath('/dashboard/academics/classes');
 }
+
+export async function assignClassTeacher(classId: string, teacherId: string) {
+  const session = await auth();
+  const user = session?.user as any;
+  if (!user || user.role !== 'ADMIN') throw new Error('Unauthorized');
+
+  try {
+    await prisma.classSection.update({
+      where: { id: classId, schoolId: user.schoolId! },
+      data: { classTeacherId: teacherId.trim() === '' ? null : teacherId }
+    });
+    console.log('✅ Assigned teacher:', teacherId, 'to class:', classId);
+  } catch (err) {
+    console.error('❌ Assignment failed:', err);
+    throw err;
+  }
+
+  revalidatePath('/dashboard/academics/classes', 'page');
+}

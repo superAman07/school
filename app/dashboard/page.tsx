@@ -25,6 +25,7 @@ export default async function DashboardHome() {
 
   if (role === 'PARENT') redirect('/dashboard/status');
   if (role === 'SUPER_ADMIN') redirect('/dashboard/schools');
+  if (role === 'TEACHER') redirect('/dashboard/teacher');
 
   const [students, staff, pendingApps, approvedApps, classes, subjects] =
     await Promise.all([

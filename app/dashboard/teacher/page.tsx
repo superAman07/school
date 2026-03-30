@@ -66,21 +66,21 @@ export default async function TeacherDashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: 'My Classes', value: myClasses.length, icon: School, gradient: 'from-indigo-500 to-indigo-700', suffix: 'As Class Teacher' },
           { label: 'Total Students', value: totalStudents, icon: Users, gradient: 'from-purple-500 to-purple-700', suffix: 'In My Classes' },
-          { label: 'Applications Submitted', value: mySubmissions.length, icon: ClipboardList, gradient: 'from-pink-500 to-rose-600', suffix: `${pendingCount} Pending Review` },
+          { label: 'Applications', value: mySubmissions.length, icon: ClipboardList, gradient: 'from-pink-500 to-rose-600', suffix: `${pendingCount} Pending` },
         ].map(stat => (
-          <div key={stat.label} className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${stat.gradient} px-4 py-3 text-white shadow-md`}>
-            <div className="absolute -right-3 -bottom-3 w-14 h-14 rounded-full bg-white/10" />
-            <div className="relative flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
-                <stat.icon className="w-4 h-4 text-white" />
+          <div key={stat.label} className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${stat.gradient} text-white shadow-md`}>
+            <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-white/10" />
+            <div className="relative flex items-center gap-4 px-5 py-4">
+              <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <stat.icon className="w-5 h-5 text-white" />
               </div>
-              <div className="min-w-0">
-                <p className="text-2xl font-black leading-none">{stat.value}</p>
-                <p className="text-xs font-semibold text-white/80 mt-0.5 truncate">{stat.label}</p>
+              <div>
+                <p className="text-3xl font-black leading-none">{stat.value}</p>
+                <p className="text-sm font-bold text-white/90 mt-0.5">{stat.label}</p>
                 <p className="text-xs text-white/60">{stat.suffix}</p>
               </div>
             </div>

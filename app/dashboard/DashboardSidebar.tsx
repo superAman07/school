@@ -83,6 +83,8 @@ export default function DashboardSidebar({
           {role === 'TEACHER' && (
             <>
               <NavLink href="/dashboard/teacher" icon={LayoutDashboard} label="My Dashboard" />
+              <Label text="Classroom" />
+              <NavLink href="/dashboard/teacher/attendance" icon={ClipboardList} label="Mark Attendance" accent="text-green-300" />
               <Label text="Admissions" />
               <NavLink href="/dashboard/teacher/new-admission" icon={PlusCircle} label="New Admission" accent="text-indigo-300" />
             </>

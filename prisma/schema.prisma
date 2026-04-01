@@ -32,6 +32,13 @@ enum FormContext {
   CUSTOM
 }
 
+enum FormAudience {
+  ALL
+  STAFF
+  PARENTS
+  STUDENTS
+}
+
 enum InputType {
   TEXT
   TEXTAREA
@@ -139,6 +146,7 @@ model School {
   formTemplates         FormTemplate[]
   formFields            FormField[]
   formSubmissions       FormSubmission[]
+  formAssignments       FormAssignment[]
   attendanceSessions    AttendanceSession[]
   attendanceRecords     AttendanceRecord[]
   leaveRequests         LeaveRequest[]
@@ -203,6 +211,7 @@ model User {
   reviewedApplications    AdmissionApplication[] @relation("ApplicationReviewedBy")
   reviewedFormSubmissions FormSubmission[]       @relation("FormReviewedByUser")
   markedAttendanceRecords AttendanceRecord[]     @relation("MarkedByUser")
+  formAssignments         FormAssignment[]       @relation("FormAssignedToUser")
 
   @@index([schoolId, role])
   @@index([schoolId, isActive])
@@ -575,6 +584,9 @@ model FormTemplate {
   code        String
   name        String
   context     FormContext @default(CUSTOM)
+  audience    FormAudience   @default(ALL)
+  isPublished Boolean        @default(false)
+  closingDate DateTime?                         
   version     Int         @default(1)
   isActive    Boolean     @default(true)
   description String?
@@ -587,9 +599,11 @@ model FormTemplate {
   fields                FormField[]
   submissions           FormSubmission[]
   admissionApplications AdmissionApplication[]
+  assignments           FormAssignment[]
 
   @@unique([schoolId, code, version])
   @@index([schoolId, context, isActive])
+  @@index([schoolId, audience, isPublished])
 }
 
 model FormField {
@@ -623,6 +637,28 @@ model FormField {
   @@unique([templateId, key])
   @@index([schoolId, templateId])
   @@index([templateId, sortOrder])
+}
+
+model FormAssignment {
+  id       String @id @default(cuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  formTemplateId String
+  formTemplate   FormTemplate @relation(fields: [formTemplateId], references: [id])
+
+  assignedToUserId String
+  assignedToUser   User   @relation("FormAssignedToUser", fields: [assignedToUserId], references: [id])
+
+  isExcluded Boolean  @default(false)  // false = included, true = admin excluded this person
+  hasViewed  Boolean  @default(false)
+  hasSubmitted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([formTemplateId, assignedToUserId])
+  @@index([schoolId, assignedToUserId])
 }
 
 model FormSubmission {

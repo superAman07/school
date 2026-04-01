@@ -22,8 +22,7 @@ export default function DashboardSidebar({
 
   useEffect(() => { setOpen(false); }, [pathname]);
 
-  const isActive = (href: string) =>
-    pathname === href || (href !== '/dashboard' && pathname.startsWith(href + '/'));
+  const isActive = (href: string) => pathname === href;
 
   const NavLink = ({ href, icon: Icon, label, accent }: {
     href: string; icon: any; label: string; accent?: string;
@@ -77,7 +76,7 @@ export default function DashboardSidebar({
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5 scrollbar-hide">
 
           {/* TEACHER */}
           {role === 'TEACHER' && (
@@ -104,7 +103,8 @@ export default function DashboardSidebar({
               <NavLink href="/dashboard/students" icon={GraduationCap} label="Students" />
               <Label text="Admissions" />
               <NavLink href="/dashboard/admissions" icon={ClipboardList} label="Applications" accent="text-blue-400" />
-              <NavLink href="/dashboard/admissions/form-builder" icon={Wrench} label="Form Builder" accent="text-purple-400" />
+              <Label text="Forms" />
+              <NavLink href="/dashboard/forms" icon={Wrench} label="All Forms" accent="text-purple-400" />
               <div className="border-t border-gray-800 mt-3 pt-3">
                 <NavLink href="/dashboard/settings" icon={Settings} label="School Settings" />
               </div>

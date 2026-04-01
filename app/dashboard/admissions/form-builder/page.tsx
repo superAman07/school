@@ -20,8 +20,15 @@ export default async function FormBuilderPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Dynamic Form Engine</h1>
-        <p className="text-gray-500 mt-2 text-lg">Build the exact form parents see at your public /apply link using Hindi & English.</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
+            <span className="text-white text-lg">📋</span>
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Admission Form Builder</h1>
+            <p className="text-gray-500 text-sm mt-0.5">Design the online application form parents fill at your public <code className="bg-gray-100 px-1.5 py-0.5 rounded text-blue-700 font-mono text-xs">/apply</code> link.</p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

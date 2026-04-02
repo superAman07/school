@@ -99,28 +99,30 @@ export default async function TeacherDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: 'My Classes', value: myClasses.length, icon: School, gradient: 'from-indigo-500 to-indigo-700', suffix: 'As Class Teacher' },
-          { label: 'Total Students', value: totalStudents, icon: Users, gradient: 'from-purple-500 to-purple-700', suffix: 'In My Classes' },
-          { label: 'Applications Proxy', value: mySubmissions.length, icon: ClipboardList, gradient: 'from-pink-500 to-rose-600', suffix: `${pendingCount} Pending` },
+          { label: 'My Classes', value: myClasses.length, icon: School, gradient: 'from-indigo-500 to-indigo-700', suffix: 'As Class Teacher', link: '#' },
+          { label: 'Total Students', value: totalStudents, icon: Users, gradient: 'from-purple-500 to-purple-700', suffix: 'In My Classes', link: '#' },
+          { label: 'Applications Proxy', value: mySubmissions.length, icon: ClipboardList, gradient: 'from-pink-500 to-rose-600', suffix: `${pendingCount} Pending`, link: '#' },
+          { label: 'Leave Requests', value: 'Review', icon: BookOpen, gradient: 'from-amber-500 to-orange-600', suffix: 'Parent Submissions', link: '/dashboard/teacher/leaves' },
         ].map(stat => (
-          <div key={stat.label} className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${stat.gradient} text-white shadow-md`}>
-            <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-white/10" />
-            <div className="relative flex items-center gap-4 px-5 py-4">
-              <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                <stat.icon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="text-3xl font-black leading-none">{stat.value}</p>
-                <p className="text-sm font-bold text-white/90 mt-0.5">{stat.label}</p>
-                <p className="text-xs text-white/60">{stat.suffix}</p>
+          <Link key={stat.label} href={stat.link}>
+            <div className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${stat.gradient} text-white shadow-md hover:-translate-y-1 hover:shadow-lg transition-all cursor-pointer`}>
+              <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-white/10" />
+              <div className="relative flex items-center gap-4 px-5 py-4">
+                <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                  <stat.icon className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-3xl font-black leading-none">{stat.value}</p>
+                  <p className="text-sm font-bold text-white/90 mt-0.5">{stat.label}</p>
+                  <p className="text-xs text-white/60">{stat.suffix}</p>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
-
       {pendingForms.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-3">

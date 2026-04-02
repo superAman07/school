@@ -37,6 +37,28 @@ export default async function TeacherDashboard() {
 
   const totalStudents = myClasses.reduce((acc, cls) => acc + cls.enrollments.length, 0);
   const pendingCount = mySubmissions.filter(a => a.status === 'SUBMITTED').length;
+  // Find the active official Admission Form
+  const admissionForm = await prisma.formTemplate.findFirst({
+    where: { 
+      schoolId: user.schoolId!,
+      context: 'ADMISSION',
+      isActive: true,
+      isPublished: true
+    }
+  });
+
+  const pendingForms = await prisma.formAssignment.findMany({
+    where: { 
+      assignedToUserId: user.id, 
+      schoolId: user.schoolId!,
+      isExcluded: false,
+      hasSubmitted: false,
+      formTemplate: { isPublished: true, isActive: true }
+    },
+    include: {
+      formTemplate: true
+    }
+  });
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -56,16 +78,17 @@ export default async function TeacherDashboard() {
               {staffProfile?.designation || 'Teacher'} · {staffProfile?.employeeCode || ''}
             </p>
           </div>
-          <Link href="/dashboard/teacher/new-admission">
-            <button className="flex items-center gap-2 bg-white text-indigo-700 font-black text-sm px-5 py-3 rounded-xl hover:bg-indigo-50 transition-all shadow-lg cursor-pointer">
-              <PlusCircle className="w-4 h-4" />
-              New Admission
-            </button>
-          </Link>
+          {staffProfile?.canManageAdmissions && admissionForm && (
+            <Link href={`/dashboard/forms/fill/${admissionForm.id}`}>
+              <button className="flex items-center gap-2 bg-white text-indigo-700 font-black text-sm px-5 py-3 rounded-xl hover:bg-indigo-50 transition-all shadow-lg cursor-pointer">
+                <PlusCircle className="w-4 h-4" />
+                New Admission
+              </button>
+            </Link>
+          )}
         </div>
       </div>
 
-      {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: 'My Classes', value: myClasses.length, icon: School, gradient: 'from-indigo-500 to-indigo-700', suffix: 'As Class Teacher' },
@@ -87,6 +110,40 @@ export default async function TeacherDashboard() {
           </div>
         ))}
       </div>
+
+      {pendingForms.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="flex h-3 w-3 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+            </span>
+            <h2 className="text-amber-800 font-bold text-base">Action Required: Pending Forms</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pendingForms.map(assignment => (
+              <div key={assignment.id} className="bg-white border rounded-xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-gray-900 border-b pb-2 mb-2">{assignment.formTemplate.name}</h3>
+                  {assignment.formTemplate.description && (
+                    <p className="text-xs text-gray-500 line-clamp-2">{assignment.formTemplate.description}</p>
+                  )}
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">
+                    Due: {assignment.formTemplate.closingDate ? new Date(assignment.formTemplate.closingDate).toLocaleDateString() : 'No deadline'}
+                  </span>
+                  <Link href={`/dashboard/forms/fill/${assignment.formTemplate.id}`}>
+                    <button className="text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+                      Fill Now →
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 

@@ -18,6 +18,11 @@ export async function createStaffMember(prevState: any, formData: FormData) {
   const employeeCode = formData.get('employeeCode') as string;
   const phone = formData.get('phone') as string;
 
+  // 👉 1. Extract the new checkboxes we added to the form
+  const isTeacher = formData.get('isTeacher') === 'on';
+  const isAdminStaff = formData.get('isAdminStaff') === 'on';
+  const canManageAdmissions = formData.get('canManageAdmissions') === 'on';
+
   if (!firstName || !email || !designation || !employeeCode) {
     return { error: 'First name, email, designation and employee code are required.' };
   }
@@ -38,12 +43,16 @@ export async function createStaffMember(prevState: any, formData: FormData) {
         }
       });
 
+      // 👉 2. Save the checkboxes into the database
       await tx.staffProfile.create({
         data: {
           schoolId: user.schoolId!,
           userId: newUser.id,
           employeeCode,
-          designation
+          designation,
+          isTeacher,
+          isAdminStaff,
+          canManageAdmissions,
         }
       });
     });
@@ -110,5 +119,33 @@ export async function updateStaffDetails(prevState: any, formData: FormData) {
   } catch (err) {
     console.error(err);
     return { error: 'Failed to update details.' };
+  }
+}
+
+export async function saveBulkPermissions(permissionsMap: Record<string, { isTeacher: boolean, isAdminStaff: boolean, canManageAdmissions: boolean }>) {
+  const session = await auth();
+  const user = session?.user as any;
+  if (!user || user.role !== 'ADMIN') return { error: 'Unauthorized' };
+
+  try {
+    // We execute updates in a single transaction for speed and safety
+    await prisma.$transaction(
+      Object.entries(permissionsMap).map(([staffProfileId, perms]) => 
+        prisma.staffProfile.update({
+          where: { id: staffProfileId, schoolId: user.schoolId! },
+          data: {
+            isTeacher: perms.isTeacher,
+            isAdminStaff: perms.isAdminStaff,
+            canManageAdmissions: perms.canManageAdmissions,
+          }
+        })
+      )
+    );
+
+    revalidatePath('/dashboard/staff');
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    return { error: 'Failed to update permissions.' };
   }
 }

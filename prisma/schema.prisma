@@ -249,13 +249,16 @@ model StaffProfile {
   userId   String @unique
   user     User   @relation(fields: [userId], references: [id])
 
-  employeeCode    String
-  designation     String
-  department      String?
-  joiningDate     DateTime?
-  qualification   String?
-  experienceYears Int?
-  notes           String?
+  employeeCode        String
+  designation         String
+  department          String?
+  joiningDate         DateTime?
+  qualification       String?
+  experienceYears     Int?
+  notes               String?
+  isTeacher           Boolean   @default(true)
+  isAdminStaff        Boolean   @default(false)
+  canManageAdmissions Boolean   @default(false)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -583,12 +586,12 @@ model FormTemplate {
 
   code        String
   name        String
-  context     FormContext @default(CUSTOM)
-  audience    FormAudience   @default(ALL)
-  isPublished Boolean        @default(false)
-  closingDate DateTime?                         
-  version     Int         @default(1)
-  isActive    Boolean     @default(true)
+  context     FormContext  @default(CUSTOM)
+  audience    FormAudience @default(ALL)
+  isPublished Boolean      @default(false)
+  closingDate DateTime?
+  version     Int          @default(1)
+  isActive    Boolean      @default(true)
   description String?
   schemaMeta  Json?
 
@@ -650,8 +653,8 @@ model FormAssignment {
   assignedToUserId String
   assignedToUser   User   @relation("FormAssignedToUser", fields: [assignedToUserId], references: [id])
 
-  isExcluded Boolean  @default(false)  // false = included, true = admin excluded this person
-  hasViewed  Boolean  @default(false)
+  isExcluded   Boolean @default(false) // false = included, true = admin excluded this person
+  hasViewed    Boolean @default(false)
   hasSubmitted Boolean @default(false)
 
   createdAt DateTime @default(now())

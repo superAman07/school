@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AddStaffForm from './AddStaffForm';
 import Link from 'next/link';
+import BulkPermissionsModal from './BulkPermissionsModal';
 
 export default async function StaffDirectoryPage() {
   const session = await auth();
@@ -23,9 +24,12 @@ export default async function StaffDirectoryPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Staff Directory</h1>
-        <p className="text-gray-500 mt-2 text-lg">Create and manage teacher accounts and faculty roles.</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Staff Directory</h1>
+          <p className="text-gray-500 mt-2 text-lg">Create and manage teacher accounts and faculty roles.</p>
+        </div>
+        <BulkPermissionsModal staff={staff} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

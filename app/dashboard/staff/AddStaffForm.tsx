@@ -59,6 +59,35 @@ export default function AddStaffForm() {
             </select>
           </div>
 
+          {/* Add this new Permissions section */}
+          <div className="space-y-3 pt-2">
+            <Label className="font-bold text-gray-500 uppercase text-xs tracking-wider">Permissions & Roles</Label>
+            
+            <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <input type="checkbox" name="isTeacher" defaultChecked className="w-4 h-4 accent-blue-600" />
+              <div>
+                <p className="text-sm font-bold">Is a Teacher</p>
+                <p className="text-xs text-gray-500">Will have access to "My Classes" and attendance.</p>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+              <input type="checkbox" name="isAdminStaff" className="w-4 h-4 accent-blue-600" />
+              <div>
+                <p className="text-sm font-bold">Is Admin Staff</p>
+                <p className="text-xs text-gray-500">Non-teaching staff role.</p>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-3 p-3 border border-amber-200 bg-amber-50 rounded-lg cursor-pointer hover:bg-amber-100">
+              <input type="checkbox" name="canManageAdmissions" className="w-4 h-4 accent-amber-600" />
+              <div>
+                <p className="text-sm font-bold text-amber-900">Can Manage Admissions</p>
+                <p className="text-xs text-amber-700">Grants power to view and fill admission forms.</p>
+              </div>
+            </label>
+          </div>
+
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 font-medium">
             ⚠️ Temporary password: <span className="font-mono font-bold">Teacher@123!</span> — Share this with the staff member to login.
           </div>

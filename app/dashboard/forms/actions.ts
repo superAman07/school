@@ -60,10 +60,36 @@ export async function togglePublish(formId: string, current: boolean) {
   const user = session?.user as any;
   if (!user || user.role !== 'ADMIN') return;
 
-  await prisma.formTemplate.update({
+  const form = await prisma.formTemplate.update({
     where: { id: formId, schoolId: user.schoolId! },
     data: { isPublished: !current }
   });
+
+  if (!current) {
+    let roles: string[] = [];
+    if (form.audience === 'STAFF') roles = ['TEACHER'];
+    if (form.audience === 'PARENTS' || form.audience === 'STUDENTS') roles = ['PARENT'];
+    if (form.audience === 'ALL') roles = ['TEACHER', 'PARENT'];
+
+    if (roles.length > 0) {
+      const usersToAssign = await prisma.user.findMany({
+        where: { schoolId: user.schoolId!, role: { in: roles as any }, isActive: true }
+      });
+
+      const assignments = usersToAssign.map(u => ({
+        schoolId: user.schoolId!,
+        formTemplateId: formId,
+        assignedToUserId: u.id,
+      }));
+
+      if (assignments.length > 0) {
+        await prisma.formAssignment.createMany({
+          data: assignments,
+          skipDuplicates: true,
+        });
+      }
+    }
+  }
 
   revalidatePath('/dashboard/forms');
   revalidatePath(`/dashboard/forms/${formId}`);
